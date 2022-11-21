@@ -20,7 +20,59 @@ test_query2 <- function(num=6) {
 
 ## Section 2  ---- 
 #----------------------------------------------------------------------------#
-# Your functions and variables might go here ... <todo: update comment>
+incarceration_trends <- read.csv("https://raw.githubusercontent.com/vera-institute/incarceration-trends/master/incarceration_trends.csv", stringsAsFactors = FALSE)
+View(incarceration_trends)
+
+# Question 1: How much has the average Latinx jail population changed from 2008 to 2018 across all counties?
+latinx_pop_2008 <- incarceration_trends %>%
+  filter(year == "2008", na.rm = TRUE) %>%
+  select(latinx_jail_pop)
+mean_latinx_2008 <- mean(latinx_pop_2008[,"latinx_jail_pop"], na.rm = TRUE)
+
+latinx_pop_2018 <- incarceration_trends %>%
+  filter(year == "2018", na.rm =  TRUE) %>%
+  select(latinx_jail_pop)
+mean_latinx_2018 <- mean(latinx_pop_2018[,"latinx_jail_pop"], na.rm = TRUE)
+
+latinx_pop_diff <- mean_latinx_2018 - mean_latinx_2008
+
+# Question 2: Which county has the highest proportion of Latinx inmates in 2008 and 2018?
+incarceration_trends <- incarceration_trends %>% 
+  mutate(latinx_ratio = latinx_jail_pop/total_pop)
+
+highest_latinx_ratio_2008 <- incarceration_trends %>%
+  filter(year == "2008", na.rm = TRUE) %>%
+  filter(latinx_ratio == max(latinx_ratio, na.rm = TRUE)) %>%
+  pull(county_name)
+
+highest_latinx_ratio_2018 <- incarceration_trends %>%
+  filter(year == "2018", na.rm = TRUE) %>%
+  filter(latinx_ratio == max(latinx_ratio, na.rm = TRUE)) %>%
+  pull(county_name)
+
+# Question 3: How do these past values compare to total_jail_from_ice (using total_jail_from_ice/total_pop)? <- rephrase this mf 
+jail_from_ice_2008 <- incarceration_trends %>%
+  filter(year == "2008", na.rm = TRUE) %>%
+  select(total_jail_from_ice)
+mean_jail_from_ice_2008 <- mean(jail_from_ice_2008[,"total_jail_from_ice"], na.rm = TRUE)
+
+jail_from_ice_2018 <- incarceration_trends %>%
+  filter(year == "2018", na.rm = TRUE) %>%
+  select(total_jail_from_ice)
+mean_jail_from_ice_2018 <- mean(jail_from_ice_2018[,"total_jail_from_ice"], na.rm = TRUE)
+
+incarceration_trends <- incarceration_trends %>% 
+  mutate(ice_ratio = total_jail_from_ice/total_pop)
+
+highest_ice_ratio_2008 <- incarceration_trends %>%
+  filter(year == "2008", na.rm = TRUE) %>%
+  filter(ice_ratio == max(ice_ratio, na.rm = TRUE)) %>%
+  pull(county_name)
+
+highest_ice_ratio_2018 <- incarceration_trends %>%
+  filter(year == "2018", na.rm = TRUE) %>%
+  filter(ice_ratio == max(ice_ratio, na.rm = TRUE)) %>%
+  pull(county_name)
 #----------------------------------------------------------------------------#
 
 ## Section 3  ---- 
