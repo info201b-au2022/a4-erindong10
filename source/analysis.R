@@ -82,15 +82,25 @@ highest_ice_ratio_2018 <- incarceration_trends %>%
 #----------------------------------------------------------------------------#
 # This function ... <todo:  update comment>
 get_year_jail_pop <- function() {
-  # TODO: Implement this function 
-return()   
+    test_df <- incarceration_trends %>%
+      group_by(year) %>%
+      summarize(total_jail_pop = sum(total_jail_pop, na.rm = TRUE))
+  return(test_df)
 }
 
 # This function ... <todo:  update comment>
 plot_jail_pop_for_us <- function()  {
-  # TODO: Implement this function 
-  return()   
+  plot_df <- get_year_jail_pop()
+  final_plot <- ggplot(data = plot_df, aes(x = year, y = total_jail_pop)) + 
+    geom_bar(stat = "identity", position = "dodge") +
+    labs(title = "Increase of Jail Population in U.S. (1970-2018)", 
+         x = "Year", 
+         y = "Total Jail Pop")
+  return(final_plot)   
 } 
+
+plot_jail_pop_for_us()
+
 
 ## Section 4  ---- 
 #----------------------------------------------------------------------------#
@@ -98,6 +108,24 @@ plot_jail_pop_for_us <- function()  {
 # Your functions might go here ... <todo:  update comment>
 # See Canvas
 #----------------------------------------------------------------------------#
+
+get_jail_pop_by_states <- function(states) {
+  state_df <- incarceration_trends %>%
+    filter(state %in% states) %>%
+    group_by(year, state) %>%
+    summarize(total_jail_pop = sum(total_jail_pop, na.rm = TRUE))
+  return(state_df)
+}
+
+plot_jail_pop_by_states <- function(states) {
+  plot_df_2 <- get_jail_pop_by_states(states)
+  final_plot_2 <- ggplot(data = plot_df_2, aes(x = year, y = total_jail_pop, color = state)) +
+    geom_line() +
+    labs(title = "Jail Population by States",
+         x = "Year",
+         y = "Total Jail Pop")
+  return(final_plot_2)
+}
 
 ## Section 5  ---- 
 #----------------------------------------------------------------------------#
