@@ -61,6 +61,8 @@ jail_from_ice_2018 <- incarceration_trends %>%
   select(total_jail_from_ice)
 mean_jail_from_ice_2018 <- mean(jail_from_ice_2018[,"total_jail_from_ice"], na.rm = TRUE)
 
+jail_from_ice_diff <- mean_jail_from_ice_2018 - mean_jail_from_ice_2008
+
 incarceration_trends <- incarceration_trends %>% 
   mutate(ice_ratio = total_jail_from_ice/total_pop)
 
@@ -124,12 +126,11 @@ plot_jail_pop_by_states <- function(states) {
   return(final_plot_2)
 }
 
-plot_jail_pop_by_states(c("CA", "OR"))
+plot_jail_pop_by_states(c("CA", "OR", "WA"))
 
 ## Section 5  ---- 
 #----------------------------------------------------------------------------#
 # <variable comparison that reveals potential patterns of inequality>
-# Your functions might go here ... <todo:  update comment>
 
 # From Section 2:
 # incarceration_trends <- incarceration_trends %>% 
@@ -152,6 +153,8 @@ plot_latinx_ratio_by_states <- function(states) {
          y = "Latinx Ratio (Latinx Jail Pop/Total Pop)")
   return(latinx_ratio_final_plot)
 }
+
+plot_latinx_ratio_by_states(c("CA", "OR", "WA"))
 
 #----------------------------------------------------------------------------#
 

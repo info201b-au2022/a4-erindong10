@@ -1,7 +1,7 @@
 ---
-title: "Your A4 Report Title (TODO: Revise title)"
-author: "Your Name"
-date: '2022-11-01'
+title: "Latinx Population Incarceration Trends"
+author: "Erin Dong"
+date: '2022-11-21'
 output: html_document
 ---
 
@@ -11,35 +11,178 @@ source("../source/analysis.R")
 ```
 
 ## Abstract 
-[TODO: Include a short abstract (about 50 words)]
+This report uses data on the incarcerated population in the U.S. from 1970 to 2018, and specifically focuses on inequalities and disproportionate demographics within the Latinx incarcerated population. Many factors related to the incarceration of the Latinx population are included, such as difference over time, location, and general population.
 
-# Test (TODO: Remove before submission!!)
-```{r echo=FALSE}
-q1_string <- test_query1()
-num <- 5
-```
-As you know, this is a markdown report. The [R Markdown Cheatsheet](https://www.rstudio.com/wp-content/uploads/2015/02/rmarkdown-cheatsheet.pdf) is **useful!**
-
-* Here's a test of a dynamic variable. Say **"`r q1_string`!!!** 
-* Here's another test. A vector
-of numbers: `r test_query2(num)`.
-
-Recall that _{r echo=TRUE}_ can be used to display the code, 
-which is very useful when developing and debugging a report. Here's an example: 
-
-```{r echo=TRUE}
-num <- 5
-sum <- sum(test_query2(num))
-print(sum)
-```
 
 ## Introduction 
-[TODO]
+In the United States, inequality in incarceration runs rampant with minority groups. In recent years, the Latinx community has been the target of many forms of inequality, specifically in the context of immigration. Not only is this harmful when a demographic is put into a stereotype or label, it also causes a disproportionate amount of people to be wrongly incarcerated for the same reason. In this report, I gathered data on the change in the Latinx prison population in the U.S. over time, as well as how it compares to the overall population proportion. The direct stakeholders in this data set are the Latinx prison population included in this data set, and the indirect stakeholders are the families and loved ones of those who are incarcerated, as well as the general population of each of the counties in this data set. The central values include equality and empathy, due to the injustices and disproportionate demographics that are being analyzed, as well as the sensitive subject matter that involves many groups of people. In this report, I answered the questions of: "How much has the average Latinx jail population changed from 2008 to 2010 across all counties?", "Where is the Latinx prison population highest and lowest?", and "How does this compare to total_jail_from_ice?".
 
 ## Data Summary 
-[TODO]
+Question 1: How much has the average Latinx jail population changed from 2008 to 2010 across all counties?
+```{r echo=FALSE, eval=TRUE}
+latinx_pop_2008 <- incarceration_trends %>%
+  filter(year == "2008", na.rm = TRUE) %>%
+  select(latinx_jail_pop)
+mean_latinx_2008 <- mean(latinx_pop_2008[,"latinx_jail_pop"], na.rm = TRUE)
 
-[TODO ... other sections ... See Canvas for details]
+latinx_pop_2018 <- incarceration_trends %>%
+  filter(year == "2018", na.rm =  TRUE) %>%
+  select(latinx_jail_pop)
+mean_latinx_2018 <- mean(latinx_pop_2018[,"latinx_jail_pop"], na.rm = TRUE)
+
+latinx_pop_diff <- mean_latinx_2018 - mean_latinx_2008
+```
+The average Latinx jail population has decreased by 6.306938 from 2008 to 2018 across all counties. This shows that the overall Latinx prison population has decreased over that decade of data.
+
+Question 2: Which county has the highest proportion of Latinx inmates in 2008 and 2018?
+```{r echo=FALSE, eval=TRUE}
+incarceration_trends <- incarceration_trends %>% 
+  mutate(latinx_ratio = latinx_jail_pop/total_pop)
+
+highest_latinx_ratio_2008 <- incarceration_trends %>%
+  filter(year == "2008", na.rm = TRUE) %>%
+  filter(latinx_ratio == max(latinx_ratio, na.rm = TRUE)) %>%
+  pull(county_name)
+
+highest_latinx_ratio_2018 <- incarceration_trends %>%
+  filter(year == "2018", na.rm = TRUE) %>%
+  filter(latinx_ratio == max(latinx_ratio, na.rm = TRUE)) %>%
+  pull(county_name)
+```
+The Latinx prison population is highest in King County in 2008 and Brooks County in 2018. This highlights which areas of the country where Latinx individuals are disproportionately incarcerated based on the percentage of the population that they make up.
+
+Question 3: How does this compare to total_jail_from_ice?
+```{r echo=FALSE, eval=TRUE}
+jail_from_ice_2008 <- incarceration_trends %>%
+  filter(year == "2008", na.rm = TRUE) %>%
+  select(total_jail_from_ice)
+mean_jail_from_ice_2008 <- mean(jail_from_ice_2008[,"total_jail_from_ice"], na.rm = TRUE)
+
+jail_from_ice_2018 <- incarceration_trends %>%
+  filter(year == "2018", na.rm = TRUE) %>%
+  select(total_jail_from_ice)
+mean_jail_from_ice_2018 <- mean(jail_from_ice_2018[,"total_jail_from_ice"], na.rm = TRUE)
+
+jail_from_ice_diff <- mean_jail_from_ice_2018 - mean_jail_from_ice_2008
+
+incarceration_trends <- incarceration_trends %>% 
+  mutate(ice_ratio = total_jail_from_ice/total_pop)
+
+highest_ice_ratio_2008 <- incarceration_trends %>%
+  filter(year == "2008", na.rm = TRUE) %>%
+  filter(ice_ratio == max(ice_ratio, na.rm = TRUE)) %>%
+  pull(county_name)
+
+highest_ice_ratio_2018 <- incarceration_trends %>%
+  filter(year == "2018", na.rm = TRUE) %>%
+  filter(ice_ratio == max(ice_ratio, na.rm = TRUE)) %>%
+  pull(county_name)
+```
+The incarcerated population from ice has decreased by 1.362789 from 2008 to 2018. This shows that over time, those the population of people incarcerated from ice has gone down. Additionally, the county with the highest proportion incarcerated by ice in 2008 is Haskell County, and Irwin County in 2018.
+
+## Growth of the U.S. Prison Population
+```{r echo=FALSE, eval=TRUE}
+get_year_jail_pop <- function() {
+    test_df <- incarceration_trends %>%
+      group_by(year) %>%
+      summarize(total_jail_pop = sum(total_jail_pop, na.rm = TRUE))
+  return(test_df)
+}
+
+# This function ... <todo:  update comment>
+plot_jail_pop_for_us <- function()  {
+  plot_df <- get_year_jail_pop()
+  final_plot <- ggplot(data = plot_df, aes(x = year, y = total_jail_pop)) + 
+    geom_bar(stat = "identity", position = "dodge") +
+    labs(title = "Increase of Jail Population in U.S. (1970-2018)", 
+         x = "Year", 
+         y = "Total Jail Pop")
+  return(final_plot)   
+} 
+
+plot_jail_pop_for_us()
+```
+Caption: This bar graph shows the increase of the U.S. jail population by year from 1970 to 2018.
+Summary: This data visualization reveals that from 1970 to 1980, the U.S. jail population stayed relatively consistent and didn't change by a lot. However, afterwards, the U.S. jail population increases steadily until it reaches its peak at around 2007. Although it decreases very slightly from 2007-2018, it is still much higher than the prison population from 1970-1980.
+
+## Growth of the Prison Population by State
+```{r echo=FALSE, eval=TRUE}
+get_jail_pop_by_states <- function(states) {
+  state_df <- incarceration_trends %>%
+    filter(state %in% states) %>%
+    group_by(year, state) %>%
+    summarize(total_jail_pop = sum(total_jail_pop, na.rm = TRUE))
+  return(state_df)
+}
+
+plot_jail_pop_by_states <- function(states) {
+  plot_df_2 <- get_jail_pop_by_states(states)
+  final_plot_2 <- ggplot(data = plot_df_2, aes(x = year, y = total_jail_pop, color = state)) +
+    geom_line() +
+    labs(title = "Jail Population by States",
+         x = "Year",
+         y = "Total Jail Pop")
+  return(final_plot_2)
+}
+
+plot_jail_pop_by_states(c("CA", "OR", "WA"))
+```
+Caption: This line chart shows the total jail population by state from 1970-2018, and used California, Oregon, and Washington as examples.
+Summary: Overall, the total jail population in all 3 example states generally increase over time, but California boasts much higher numbers than Oregon and Washington. California's overall jail population is much larger than Washington and Oregon's possibly because of its large general population size, but increases rapidly in 1980 and stays relatively constant afterwards. Oregon and Washington's numbers are relatively closer to each other, and stay below 20,000 even until 2018. They start off at around the same number in 1970, and Oregon's increases until 2000 and decreases steadily afterwards. Washington's total jail population keeps increasing until around 2010 and stays relatively constant after then.
+
+## Variable Comparison That Reveals Potential Patterns of Inequality
+```{r echo=FALSE, eval=TRUE}
+latinx_ratio_by_states <- function(states) {
+  latinx_state_df <- incarceration_trends %>%
+    filter(state %in% states) %>%
+    group_by(year, state) %>%
+    summarize(latinx_ratio = sum(latinx_ratio, na.rm = TRUE))
+  return(latinx_state_df)
+}
+
+plot_latinx_ratio_by_states <- function(states) {
+  plot_latinx_ratio <- latinx_ratio_by_states(states)
+  latinx_ratio_final_plot <- ggplot(data = plot_latinx_ratio, aes(x = year, y = latinx_ratio, color = state)) +
+    geom_line() +
+    labs(title = "Latinx Jail Ratio by State",
+         x = "Year",
+         y = "Latinx Ratio (Latinx Jail Pop/Total Pop)")
+  return(latinx_ratio_final_plot)
+}
+
+plot_latinx_ratio_by_states(c("CA", "OR", "WA"))
+```
+Caption: This line chart reveals the proportion of Latinx population that is incarcerated compared to the general population over time.
+Summary: The question I wanted to answer was: How has the Latinx incarcerated population proportion changed over time by state? The states I chose to analyze were California, Oregon, and Washington, and this data visualization shows that a very low proportion of Latinx individuals were incarcerated until after 1985. The proportion was nearly zero, until it skyrocketed in California ans continued increasing over time, while it increased steadily in Oregon and Washington until around 2010 when it began decreasing rapidly.
+
+## Potential Patterns of Inequality That Vary Geographically>
+```{r echo=FALSE, eval=TRUE}
+# Data wrangling
+latinx_ratio_by_state_2018 <- incarceration_trends %>%
+  filter(year == "2018", na.rm = TRUE) %>%
+  group_by(state) %>%
+  summarize(latinx_ratio = sum(latinx_ratio, na.rm = TRUE)) %>%
+  mutate(state_name = tolower(state.name[match(state, state.abb)]))
+
+View(latinx_ratio_by_state_2018)
+
+# Join to U.S. shapefile
+state_map <- map_data("state") %>%
+  rename(state_name = region) %>%
+  left_join(latinx_ratio_by_state_2018, by="state_name")
+  
+# Plot the map
+latinx_ratio_map <- ggplot(state_map) +
+  geom_polygon(
+    mapping = aes(x = long, y = lat, group = group, fill = latinx_ratio),
+    color = "white",
+    size = .1
+  ) +
+  coord_map() +
+  scale_fill_continuous(low = "Orange", high = "Red") +
+  labs(fill = "Latinx Ratio") +
+  theme_minimal()
+```
 
 _All the very best with your work!_
 
