@@ -101,14 +101,11 @@ plot_jail_pop_for_us <- function()  {
 
 plot_jail_pop_for_us()
 
-
 ## Section 4  ---- 
 #----------------------------------------------------------------------------#
 # Growth of Prison Population by State 
 # Your functions might go here ... <todo:  update comment>
-# See Canvas
 #----------------------------------------------------------------------------#
-
 get_jail_pop_by_states <- function(states) {
   state_df <- incarceration_trends %>%
     filter(state %in% states) %>%
@@ -127,20 +124,68 @@ plot_jail_pop_by_states <- function(states) {
   return(final_plot_2)
 }
 
+plot_jail_pop_by_states(c("CA", "OR"))
+
 ## Section 5  ---- 
 #----------------------------------------------------------------------------#
 # <variable comparison that reveals potential patterns of inequality>
 # Your functions might go here ... <todo:  update comment>
-# See Canvas
+
+# From Section 2:
+# incarceration_trends <- incarceration_trends %>% 
+# mutate(latinx_ratio = latinx_jail_pop/total_pop)
+
+latinx_ratio_by_states <- function(states) {
+  latinx_state_df <- incarceration_trends %>%
+    filter(state %in% states) %>%
+    group_by(year, state) %>%
+    summarize(latinx_ratio = sum(latinx_ratio, na.rm = TRUE))
+  return(latinx_state_df)
+}
+
+plot_latinx_ratio_by_states <- function(states) {
+  plot_latinx_ratio <- latinx_ratio_by_states(states)
+  latinx_ratio_final_plot <- ggplot(data = plot_latinx_ratio, aes(x = year, y = latinx_ratio, color = state)) +
+    geom_line() +
+    labs(title = "Latinx Jail Ratio by State",
+         x = "Year",
+         y = "Latinx Ratio (Latinx Jail Pop/Total Pop)")
+  return(latinx_ratio_final_plot)
+}
+
 #----------------------------------------------------------------------------#
 
 ## Section 6  ---- 
 #----------------------------------------------------------------------------#
 # <a map shows potential patterns of inequality that vary geographically>
 # Your functions might go here ... <todo:  update comment>
-# See Canvas
+
+# Data wrangling
+latinx_ratio_by_state_2018 <- incarceration_trends %>%
+  filter(year == "2018", na.rm = TRUE) %>%
+  group_by(state) %>%
+  summarize(latinx_ratio = sum(latinx_ratio, na.rm = TRUE)) %>%
+  mutate(state_name = tolower(state.name[match(state, state.abb)]))
+
+View(latinx_ratio_by_state_2018)
+
+# Join to U.S. shapefile
+state_map <- map_data("state") %>%
+  rename(state_name = region) %>%
+  left_join(latinx_ratio_by_state_2018, by="state_name")
+  
+# Plot the map
+latinx_ratio_map <- ggplot(state_map) +
+  geom_polygon(
+    mapping = aes(x = long, y = lat, group = group, fill = latinx_ratio),
+    color = "white",
+    size = .1
+  ) +
+  coord_map() +
+  scale_fill_continuous(low = "Orange", high = "Red") +
+  labs(fill = "Latinx Ratio") +
+  theme_minimal()
+
 #----------------------------------------------------------------------------#
 
 ## Load data frame ---- 
-
-
