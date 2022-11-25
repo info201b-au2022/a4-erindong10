@@ -1,4 +1,5 @@
 library(tidyverse)
+library(ggplot2)
 
 # The functions might be useful for A4
 source("../source/a4-helpers.R")
