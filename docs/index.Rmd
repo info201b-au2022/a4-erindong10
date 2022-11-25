@@ -176,16 +176,21 @@ state_map <- map_data("state") %>%
   left_join(latinx_ratio_by_state_2018, by="state_name")
   
 # Plot the map
-latinx_ratio_map <- ggplot(state_map) +
-  geom_polygon(
+latinx_ratio_map <- function () {
+  plot_latinx_ratio_map <- ggplot(state_map) +
+    geom_polygon(
     mapping = aes(x = long, y = lat, group = group, fill = latinx_ratio),
     color = "white",
     size = .1
-  ) +
-  coord_map() +
-  scale_fill_continuous(low = "Orange", high = "Red") +
-  labs(fill = "Latinx Ratio") +
-  theme_minimal()
+    ) +
+    coord_map() +
+    scale_fill_continuous(low = "Orange", high = "Red") +
+    labs(fill = "Latinx Ratio") +
+    theme_minimal()
+  return(plot_latinx_ratio_map)
+}
+
+latinx_ratio_map()
 ```
 
 **Caption:** This choropleth map shows where the Latinx incarcerated population is highest in comparison to the general population where red represents the highest and orange represents the lowest.
